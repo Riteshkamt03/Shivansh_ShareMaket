@@ -6,19 +6,23 @@ class CustomTextField extends StatelessWidget {
   final bool obscureText;
   final FormFieldValidator<String>? validator;
 
-  CustomTextField({
+  // Constructor with `Key? key` as a super parameter
+  const CustomTextField({
+    Key? key,
     this.controller,
     required this.label,
     this.obscureText = false,
     this.validator,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+      ),
       validator: validator,
     );
   }

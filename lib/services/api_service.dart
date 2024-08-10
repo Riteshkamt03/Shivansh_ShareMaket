@@ -1,8 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:logging/logging.dart';
+import '../constants.dart';
 
 class ApiService {
-  final String baseUrl = 'http://localhost:5000'; // Update to your backend URL
+  final String baseUrl = ApiConstants.baseUrl;
+  final Logger _logger = Logger('ApiService');
+
+  ApiService() {
+    // Enable root logger to capture all logs
+    Logger.root.level = Level.ALL; // Set the root level to ALL
+    Logger.root.onRecord.listen((record) {
+      // Customize the log output format and destination
+      //print('${record.level.name}: ${record.time}: ${record.message}');
+    });
+
+    // Configure the ApiService logger
+    //_logger.level = Level.ALL; // Set the ApiService logger level to ALL
+  }
 
   Future<bool> createAccount({
     required String name,
@@ -11,72 +26,85 @@ class ApiService {
     required String email,
     required String password,
   }) async {
+    final uri = Uri.parse('${ApiConstants.baseUrl}/create-account/');
+    final headers = {'Content-Type': 'application/json; charset=UTF-8'};
+    final body = jsonEncode({
+      'name': name,
+      'dob': dob,
+      'phone': phone,
+      'email': email,
+      'password': password,
+    });
+
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/create_account'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({
-          'name': name,
-          'dob': dob,
-          'phone': phone,
-          'email': email,
-          'password': password,
-        }),
-      );
+      final response = await http.post(uri, headers: headers, body: body);
 
       if (response.statusCode == 201) {
-        final responseBody = jsonDecode(response.body);
-        // Example check: assuming a 'success' field is returned
-        return responseBody['success'] ?? false;
+        return true;
       } else {
-        throw Exception('Failed to create account');
+        _logger.severe(
+            'Failed to create account. Status code: ${response.statusCode}, Body: ${response.body}');
+        return false;
       }
-    } catch (e) {
-      print('Error: $e'); // Log or handle the error as needed
+    } catch (e, stackTrace) {
+      _logger.severe('Error in createAccount: $e', e, stackTrace);
       return false;
     }
   }
 
   Future<bool> login({
-    required String username,
+    required String email,
     required String password,
   }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/login'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({
-          'username': username,
-          'password': password,
-        }),
-      );
+    final uri = Uri.parse('${ApiConstants.baseUrl}/login/');
+    final headers = {'Content-Type': 'application/json; charset=UTF-8'};
+    final body = jsonEncode({
+      'email': email,
+      'password': password,
+    });
 
-      return response.statusCode == 200;
-    } catch (e) {
-      print('Error: $e'); // Log or handle the error as needed
+    try {
+      final response = await http.post(uri, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        _logger.severe(
+            'Failed to login. Status code: ${response.statusCode}, Body: ${response.body}');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      _logger.severe('Error in login: $e', e, stackTrace);
       return false;
     }
   }
 
   Future<bool> updateAccount({
+    required int userId,
     required String name,
     required String email,
     required String phone,
   }) async {
-    try {
-      final response = await http.put(
-        Uri.parse('$baseUrl/update_account'),
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'phone': phone,
-        }),
-      );
+    final uri = Uri.parse('${ApiConstants.baseUrl}/update-account/$userId/');
+    final headers = {'Content-Type': 'application/json; charset=UTF-8'};
+    final body = jsonEncode({
+      'name': name,
+      'email': email,
+      'phone': phone,
+    });
 
-      return response.statusCode == 200;
-    } catch (e) {
-      print('Error: $e'); // Log or handle the error as needed
+    try {
+      final response = await http.put(uri, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        _logger.severe(
+            'Failed to update account. Status code: ${response.statusCode}, Body: ${response.body}');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      _logger.severe('Error in updateAccount: $e', e, stackTrace);
       return false;
     }
   }

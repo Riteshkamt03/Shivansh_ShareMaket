@@ -4,6 +4,8 @@ import '../widgets/custom_button.dart';
 import '../services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -15,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -23,22 +25,25 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             children: [
               CustomTextField(
-                  label: 'Username',
-                  validator: (value) =>
-                      value!.isEmpty ? 'Please enter your username' : null),
+                label: 'Email', // Changed from Username to Email
+                validator: (value) =>
+                    value!.isEmpty ? 'Please enter your email' : null,
+              ),
               CustomTextField(
-                  label: 'Password',
-                  obscureText: true,
-                  validator: (value) =>
-                      value!.isEmpty ? 'Please enter your password' : null),
-              SizedBox(height: 20),
+                label: 'Password',
+                obscureText: true,
+                validator: (value) =>
+                    value!.isEmpty ? 'Please enter your password' : null,
+              ),
+              const SizedBox(height: 20),
               CustomButton(
                 text: 'Login',
                 onPressed: () async {
                   if (_formKey.currentState?.validate() ?? false) {
                     // Handle login logic
                     final success = await _apiService.login(
-                      username: 'testuser', // Replace with actual input
+                      email:
+                          'testuser@example.com', // Replace with actual input
                       password: 'password123',
                     );
                     if (success) {
@@ -47,12 +52,12 @@ class _LoginPageState extends State<LoginPage> {
                   }
                 },
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
                   // Handle Google login
                 },
-                child: Text('Login with Google'),
+                child: const Text('Login with Google'),
               ),
             ],
           ),

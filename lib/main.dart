@@ -9,10 +9,12 @@ import 'screens/my_enrollment.dart';
 import 'screens/session_update.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,14 +24,14 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => CreateAccountPage(),
-        '/login': (context) => LoginPage(),
-        '/logout': (context) => LogoutPage(),
-        '/my_account': (context) => MyAccountPage(),
-        '/edit_account': (context) => EditAccountPage(),
-        '/course_page': (context) => CoursePage(),
-        '/my_enrollment': (context) => MyEnrollmentPage(),
-        '/session_update': (context) => SessionUpdatePage(),
+        '/': (context) => const CreateAccountPage(),
+        '/login': (context) => const LoginPage(),
+        '/logout': (context) => const LogoutPage(),
+        '/my_account': (context) => const MyAccountPage(),
+        '/edit_account': (context) => const EditAccountPage(),
+        '/course_page': (context) => const CoursePage(),
+        '/my_enrollment': (context) => const MyEnrollmentPage(),
+        '/session_update': (context) => const SessionUpdatePage(),
       },
     );
   }
