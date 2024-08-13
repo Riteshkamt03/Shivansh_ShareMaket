@@ -12,7 +12,45 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _apiService = ApiService();
+  final ApiService _apiService = ApiService();
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      try {
+        final success = await _apiService.login(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+
+        if (success) {
+          Navigator.pushReplacementNamed(context, '/my_account');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login failed. Please try again.'),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,32 +63,24 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             children: [
               CustomTextField(
-                label: 'Email', // Changed from Username to Email
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your email' : null,
+                controller: _emailController,
+                label: 'Email',
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your email'
+                    : null,
               ),
               CustomTextField(
+                controller: _passwordController,
                 label: 'Password',
                 obscureText: true,
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your password' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your password'
+                    : null,
               ),
               const SizedBox(height: 20),
               CustomButton(
                 text: 'Login',
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // Handle login logic
-                    final success = await _apiService.login(
-                      email:
-                          'testuser@example.com', // Replace with actual input
-                      password: 'password123',
-                    );
-                    if (success) {
-                      Navigator.pushReplacementNamed(context, '/my_account');
-                    }
-                  }
-                },
+                onPressed: _login,
               ),
               const SizedBox(height: 20),
               TextButton(

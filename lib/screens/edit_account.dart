@@ -12,10 +12,83 @@ class EditAccountPage extends StatefulWidget {
 
 class _EditAccountPageState extends State<EditAccountPage> {
   final _formKey = GlobalKey<FormState>();
-  final _apiService = ApiService();
+  final ApiService _apiService = ApiService();
 
-  // Placeholder for the userId, replace with actual userId
-  final int userId = 1;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  late int userId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Extract userId from arguments
+    userId = ModalRoute.of(context)!.settings.arguments as int;
+    // Fetch user details and initialize the controllers
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    // Fetch user details and set to controllers
+    try {
+      final user = await _apiService.fetchUserDetails(userId);
+      _nameController.text = user.name;
+      _emailController.text = user.email;
+      _phoneController.text = user.phone;
+    } catch (e) {
+      // Handle errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load user details: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _updateAccount() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      try {
+        final success = await _apiService.updateAccount(
+          userId: userId,
+          name: _nameController.text,
+          email: _emailController.text,
+          phone: _phoneController.text,
+        );
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account updated successfully!'),
+            ),
+          );
+          Navigator.pushNamed(context, '/my_account');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to update account. Please try again.'),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,37 +101,30 @@ class _EditAccountPageState extends State<EditAccountPage> {
           child: Column(
             children: [
               CustomTextField(
+                controller: _nameController,
                 label: 'Name',
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your name' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your name'
+                    : null,
               ),
               CustomTextField(
+                controller: _emailController,
                 label: 'Email',
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your email' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your email'
+                    : null,
               ),
               CustomTextField(
+                controller: _phoneController,
                 label: 'Phone Number',
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter your phone number' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your phone number'
+                    : null,
               ),
               const SizedBox(height: 20),
               CustomButton(
                 text: 'Update Account',
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // Handle account update logic
-                    final response = await _apiService.updateAccount(
-                      userId: userId, // Pass the userId here
-                      name: 'John Doe', // Replace with actual input
-                      email: 'john.doe@example.com',
-                      phone: '1234567890',
-                    );
-                    if (response) {
-                      Navigator.pushNamed(context, '/my_account');
-                    }
-                  }
-                },
+                onPressed: _updateAccount,
               ),
             ],
           ),

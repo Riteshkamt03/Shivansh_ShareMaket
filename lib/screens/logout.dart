@@ -10,7 +10,7 @@ class LogoutPage extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // Handle logout logic
+            // Handle logout logic here
             Navigator.pushReplacementNamed(context, '/');
           },
           child: const Text('Logout'),

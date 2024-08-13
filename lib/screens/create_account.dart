@@ -14,7 +14,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   final _formKey = GlobalKey<FormState>();
   final ApiService _apiService = ApiService();
 
-  // Controllers for each text field
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -23,7 +22,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
   @override
   void dispose() {
-    // Dispose the controllers when the widget is removed from the widget tree
     _nameController.dispose();
     _dobController.dispose();
     _phoneController.dispose();
@@ -35,7 +33,6 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
   Future<void> _createAccount() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        // Call the API service to create the account
         final success = await _apiService.createAccount(
           name: _nameController.text,
           dob: _dobController.text,
@@ -44,15 +41,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           password: _passwordController.text,
         );
 
-        // Check response and show success message
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Account created successfully!'),
             ),
           );
-
-          // Navigate to login page or another page after successful account creation
           Navigator.pushNamed(context, '/login');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -62,11 +56,10 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
           );
         }
       } catch (e) {
-        // Handle specific exceptions if needed
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('An error occurred: $e'),
-            backgroundColor: Colors.red, // Use red for error messages
+            backgroundColor: Colors.red,
           ),
         );
       }
